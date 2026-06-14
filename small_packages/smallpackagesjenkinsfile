@@ -2,47 +2,17 @@ pipeline {
     agent any
 
     stages {
-
-        stage('Update APT') {
+        stage('Run in container') {
             steps {
                 sh '''
-                    sudo apt-get update -y
+                    docker run --rm ubuntu:latest bash -c "
+                        apt-get update &&
+                        apt-get install -y curl wget git zip unzip tree &&
+                        curl --version &&
+                        git --version
+                    "
                 '''
             }
-        }
-
-        stage('Install small packages') {
-            steps {
-                sh '''
-                    sudo apt-get install -y \
-                        curl \
-                        wget \
-                        git \
-                        unzip \
-                        zip \
-                        tree
-                '''
-            }
-        }
-
-        stage('Verify installs') {
-            steps {
-                sh '''
-                    curl --version
-                    git --version
-                    wget --version
-                    zip --version
-                '''
-            }
-        }
-    }
-
-    post {
-        success {
-            echo "Build completed successfully 🎉"
-        }
-        failure {
-            echo "Build failed ❌"
         }
     }
 }
