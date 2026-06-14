@@ -1,0 +1,58 @@
+pipeline {
+    agent any
+
+    stages {
+
+        stage('Check OS') {
+            steps {
+                sh '''
+                    echo "Checking system info..."
+                    uname -a
+                    cat /etc/os-release
+                '''
+            }
+        }
+
+        stage('Update APT') {
+            steps {
+                sh '''
+                    sudo apt-get update -y
+                '''
+            }
+        }
+
+        stage('Install small packages') {
+            steps {
+                sh '''
+                    sudo apt-get install -y \
+                        curl \
+                        wget \
+                        git \
+                        unzip \
+                        zip \
+                        tree
+                '''
+            }
+        }
+
+        stage('Verify installs') {
+            steps {
+                sh '''
+                    curl --version
+                    git --version
+                    wget --version
+                    zip --version
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Build completed successfully 🎉"
+        }
+        failure {
+            echo "Build failed ❌"
+        }
+    }
+}
